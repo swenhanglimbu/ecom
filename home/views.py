@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.generic import View
 
 from .models import *
@@ -17,3 +17,27 @@ class HomeView(BaseView):
         self.views['sale_products'] = Product.objects.filter(labels='sale', stock='In stock')
 
         return render(request, 'index.html', self.views)
+
+class CategoryView(BaseView):
+    def get(self, request, slug):
+        ids = Category.objects.get(slug=slug).id
+        self.views['cat_product'] = Product.objects.filter(category_id=ids)
+
+        return render(request, 'category.html', self.views)
+
+class BrandView(BaseView):
+    def get(self, request, slug):
+        ids = Brand.objects.get(slug=slug).id
+        self.views['brand_product'] = Product.objects.filter(brand_id=ids)
+
+        return render(request, 'brand.html', self.views)
+
+class SearchView(BaseView):
+    def get(self, request):
+        query = request.GET.get('query')
+        if querry !='':
+            self.views['search_product'] = Product.objects.filter(description__icontains=query)
+        else:
+            return redirect('/')
+
+        return render(request, 'search.html', self.views)
