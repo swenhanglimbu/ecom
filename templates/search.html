@@ -24,7 +24,7 @@
                                 <div class="product-view-top">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <form method="GET" action="search">
+                                            <form method="GET" action="/search">
                                                 <div class="search">
                                                     <input type="text" name = "query" placeholder="Search">
                                                     <button type = "submit"><i class="fa fa-search"></i></button>
@@ -69,7 +69,7 @@
                             <div class="col-md-4">
                                 <div class="product-item">
                                     <div class="product-title">
-                                        <a href="#">{{cat.name}}</a>
+                                        <a href="/details/{{cat.slug}}">{{cat.name}}</a>
                                         <div class="ratting">
                                             <i class="fa fa-star"></i>
                                             <i class="fa fa-star"></i>
@@ -79,7 +79,7 @@
                                         </div>
                                     </div>
                                     <div class="product-image">
-                                        <a href="product-detail.html">
+                                        <a href="/details/{{cat.slug}}">
                                             <img src="{{cat.image.url}}" alt="Product Image">
                                         </a>
                                         <div class="product-action">
@@ -179,7 +179,7 @@
                             <h2 class="title">Our Brands</h2>
                             <ul>
                                 {% for brand in brands %}
-                                <li><a href="#">{{brand.name}}</a></li>
+                                <li><a href="/brand/{{brand.slug}}">{{brand.name}}</a></li>
                                 {% endfor %}
                             </ul>
                         </div>

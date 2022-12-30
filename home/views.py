@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect
 from django.views.generic import View
-
 from .models import *
+from django.contrib.auth.models import User
+from django.contrib import messages
 # Create your views here.
 class BaseView(View):
     views = {}
@@ -45,3 +46,39 @@ class SearchView(BaseView):
             return redirect('/')
 
         return render(request, 'search.html', self.views)
+
+class ProductDetailView(BaseView):
+    def get(self,request,slug):
+        self.views['product_detail'] = Product.objects.filter(slug = slug)
+        subcat_id = Product.objects.get(slug = slug).subcategory_id
+        product_id = Product.objects.get(slug = slug).id
+        self.views['product_image'] = ProductImage.objects.filter(product_id=product_id)
+        self.views['subcat_product'] = Product.objects.filter(subcategory_id=subcat_id)
+        return render(request, 'product-detail.html', self.views)
+
+
+def signup(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        cpassword = request.POST['cpassword']
+        if password == cpassword:
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'The username is already taken')
+                return redirect('/signup')
+            elif User.objects.filter(email=email).exists():
+                messages.error(request, 'The email is already taken')
+                return redirect('/signup')
+            else:
+                data = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password
+                )
+                data.save()
+        else:
+            messages.error(request, 'Password does not match !')
+            return redirect('/signup')
+
+    return render(request, 'signup.html')
