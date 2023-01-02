@@ -3,6 +3,7 @@ from django.views.generic import View
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib import messages
+import datetime
 # Create your views here.
 class BaseView(View):
     views = {}
@@ -19,6 +20,7 @@ class HomeView(BaseView):
         self.views['new_products'] = Product.objects.filter(labels='new', stock='In stock')
         self.views['hot_products'] = Product.objects.filter(labels='hot', stock='In stock')
         self.views['sale_products'] = Product.objects.filter(labels='sale', stock='In stock')
+
 
         return render(request, 'index.html', self.views)
 
@@ -54,6 +56,7 @@ class ProductDetailView(BaseView):
         product_id = Product.objects.get(slug = slug).id
         self.views['product_image'] = ProductImage.objects.filter(product_id=product_id)
         self.views['subcat_product'] = Product.objects.filter(subcategory_id=subcat_id)
+        self.views['product_reviews'] = ProductReview.objects.filter(slug=slug)
         return render(request, 'product-detail.html', self.views)
 
 
@@ -83,3 +86,24 @@ def signup(request):
             return redirect('/signup')
 
     return render(request, 'signup.html')
+
+def product_review(request,slug):
+    if request.method == "POST":
+        username = request.user.username
+        email = request.user.email
+        comment = request.POST['comment']
+        star = request.POST['star']
+        x = datetime.datetime.now()
+        date = str(x.strftime("%c"))
+        data = ProductReview.objects.create(
+            username=username,
+            email=email,
+            comment=comment,
+            star=star,
+            date=date,
+            slug=slug
+        )
+        data.save()
+    return redirect(f'/details/{slug}')
+
+
