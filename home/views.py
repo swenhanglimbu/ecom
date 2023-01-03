@@ -106,4 +106,32 @@ def product_review(request,slug):
         data.save()
     return redirect(f'/details/{slug}')
 
+def cart(request,slug):
+    username = request.user.username
+    if Cart.objects.filter(slug=slug, username=username,checkout=False).exists():
+        quantity = Cart.objects.get(slug=slug, username=username,checkout=False).quantity
+        price = Product.objects.get(slug=slug).price
+        discounted_price =Product.objects.get(slug=slug).discounted_price
+        quantity = quantity+1
+        if discounted_price > 0:
+            original_price = quantity * discounted_price
+        else:
+            original_price = quantity * price
 
+        Cart.objects.filter(slug=slug, username=username, checkout=False).update(quantity=quantity,total=original_price)
+        return redirect('/')
+    else:
+        price = Product.objects.get(slug=slug).price
+        discounted_price = Product.objects.get(slug=slug).discounted_price
+        if discounted_price > 0:
+            original_price = discounted_price
+        else:
+            original_price = price
+        data = Cart.objects.create(
+            username=username,
+            slug=slug,
+            total=original_price,
+            items=Product.objects.filter(slug=slug)[0]
+        )
+        data.save()
+        return redirect('/')
