@@ -119,7 +119,7 @@ def cart(request,slug):
             original_price = quantity * price
 
         Cart.objects.filter(slug=slug, username=username, checkout=False).update(quantity=quantity,total=original_price)
-        return redirect('/')
+        return redirect('/my_cart')
     else:
         price = Product.objects.get(slug=slug).price
         discounted_price = Product.objects.get(slug=slug).discounted_price
@@ -134,4 +134,43 @@ def cart(request,slug):
             items=Product.objects.filter(slug=slug)[0]
         )
         data.save()
-        return redirect('/')
+        return redirect('/my_cart')
+
+def decrease_quantity(request, slug):
+    username = request.user.username
+    if Cart.objects.filter(slug=slug, username=username, checkout=False).exists():
+        quantity = Cart.objects.get(slug=slug, username=username, checkout=False).quantity
+        price = Product.objects.get(slug=slug).price
+        discounted_price = Product.objects.get(slug=slug).discounted_price
+        if quantity > 1:
+            quantity = quantity-1
+            if discounted_price > 0:
+                original_price = quantity * discounted_price
+            else:
+                original_price = quantity * price
+
+            Cart.objects.filter(slug=slug, username=username, checkout=False).update(quantity=quantity,total= original_price)
+            return redirect('/my_cart')
+        else:
+            messages.error(request, 'Quantity cannot be less than 1 !')
+            return redirect('/my_cart')
+
+def delete_cart(request, slug):
+    username = request.user.username
+    Cart.objects.filter(slug=slug, username=username, checkout=False).delete()
+    messages.error(request, 'The cart is removed !')
+    return redirect('/my_cart')
+
+
+class CartView(BaseView):
+
+    def get(self, request):
+        grand_total = 0
+        username = request.user.username
+        self.views['my_carts'] = Cart.objects.filter(username=username, checkout=False)
+        for i in self.views['my_carts']:
+            grand_total = grand_total + i.total
+        self.views['all_total'] = grand_total
+        self.views['shipping'] = 50
+        self.views['grand_total'] = grand_total + 50
+        return render(request, 'cart.html',self.views)
