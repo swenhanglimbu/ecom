@@ -54,8 +54,24 @@
                     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                         <div class="navbar-nav mr-auto">
                             <a href="/" class="nav-item nav-link active">Home</a>
-
                         </div>
+                        {% for cat in categories %}
+                         <div class="navbar-nav ml-auto">
+                            <div class="nav-item dropdown">
+
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">{{cat.name}}</a>
+                                <div class="dropdown-menu">
+                                    {% for subcat in subcategories %}
+                                    {% if cat.id == subcat.category_id %}
+                                    <a href="" class="dropdown-item">{{subcat.name}}</a>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+
                         <div class="navbar-nav ml-auto">
                             <div class="nav-item dropdown">
                                 {% if user.is_authenticated %}

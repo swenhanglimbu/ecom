@@ -8,6 +8,7 @@ import datetime
 class BaseView(View):
     views = {}
     views['categories'] = Category.objects.all()
+    views['subcategories'] = SubCategory.objects.all()
     views['brands'] = Brand.objects.all()
     views['sale_products'] = Product.objects.filter(labels='sale', stock='In stock')
 
@@ -80,6 +81,9 @@ def signup(request):
                     password=password
                 )
                 data.save()
+                # user = authenticated(username = username, password = pass)
+                # login(request,user)
+                # return redirect('/)
                 return redirect('/accounts/login')
         else:
             messages.error(request, 'Password does not match !')
@@ -106,6 +110,8 @@ def product_review(request,slug):
         data.save()
     return redirect(f'/details/{slug}')
 
+from django.contrib.auth.decorators import login_required
+@login_required
 def cart(request,slug):
     username = request.user.username
     if Cart.objects.filter(slug=slug, username=username,checkout=False).exists():
@@ -134,6 +140,7 @@ def cart(request,slug):
             items=Product.objects.filter(slug=slug)[0]
         )
         data.save()
+
         return redirect('/my_cart')
 
 def decrease_quantity(request, slug):
@@ -174,3 +181,6 @@ class CartView(BaseView):
         self.views['shipping'] = 50
         self.views['grand_total'] = grand_total + 50
         return render(request, 'cart.html',self.views)
+
+
+
